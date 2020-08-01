@@ -9,7 +9,7 @@ defmodule RoopeIO.Application do
     port = Application.get_env(:roopeio, :port)
 
     children = [
-      Supervisor.child_spec({Task, fn -> RoopeIO.serve(port) end}, restart: :permanent)
+      {Plug.Cowboy, scheme: :http, plug: RoopeIO, port: port}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

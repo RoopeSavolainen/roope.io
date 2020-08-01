@@ -1,11 +1,17 @@
 defmodule RoopeIO do
+  import Plug.Conn
+
   require Logger
 
-  @doc """
-  Main server function.
-  Sets up cowboy and starts serving content.
-  """
-  def serve(port) do
-    Logger.info "Starting server on port #{port}"
+  def init(options) do
+    Logger.info "Launching server with #{options}"
+    options
   end
+
+  def call(conn, _opts) do
+    conn
+    |> put_resp_content_type("text/plain")
+    |> send_resp(200, "Hello roope.io!")
+  end
+
 end
