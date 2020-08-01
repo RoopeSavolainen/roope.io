@@ -1,7 +1,9 @@
 import Config
 
+config :roopeio, :port, 8080
+
 if Mix.env() == :prod do
-  config :roopeio, :port, 80
+  config :roopeio, :bind, {127,0,0,1}
 else
-  config :roopeio, :port, 8080
+  config :roopeio, :bind, {0,0,0,0}
 end

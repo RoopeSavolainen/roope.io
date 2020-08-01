@@ -7,9 +7,10 @@ defmodule RoopeIO.Application do
 
   def start(_type, _args) do
     port = Application.get_env(:roopeio, :port)
+    bind = Application.get_env(:roopeio, :bind)
 
     children = [
-      {Plug.Cowboy, scheme: :http, plug: RoopeIO, port: port}
+      {Plug.Cowboy, scheme: :http, plug: RoopeIO, ip: bind, port: port}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
