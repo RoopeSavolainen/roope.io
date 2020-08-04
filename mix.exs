@@ -9,12 +9,22 @@ defmodule RoopeIO.MixProject do
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       releases: [
-        prod: [
+        roopeio: [
           include_executables_for: [:unix],
-          steps: [:assemble, :tar],
+          steps: [&copy_assets/1, :assemble, :tar, &clean_assets/1],
         ]
       ]
     ]
+  end
+
+  defp copy_assets(release) do
+    File.cp_r!("./assets", "./rel/overlays/assets")
+    release
+  end
+
+  defp clean_assets(release) do
+    File.rm_rf!("./rel/overlays/assets")
+    release
   end
 
   # Run "mix help compile.app" to learn about applications.
