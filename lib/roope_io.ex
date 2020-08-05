@@ -1,17 +1,31 @@
 defmodule RoopeIO do
-  import Plug.Conn
+  use Plug.Router
+  use Plug.ErrorHandler
 
   require Logger
 
-  def init(options) do
-    Logger.info "Launching server with #{options}"
-    options
-  end
+  plug :match
+  plug :dispatch
 
-  def call(conn, _opts) do
+  get "/" do
     conn
-    |> put_resp_content_type("text/plain")
-    |> send_resp(200, "Hello roope.io!")
+    |> redirect("/home")
   end
 
+  get "/:page" do
+    send_resp(conn, 200, "Page #{page}")  # TODO: render the actual page
+  end
+
+  match _ do
+    send_resp(conn, 404, "Page not found.")  # TODO: proper error page
+  end
+
+  defp redirect(conn, to) do
+    url = Plug.HTML.html_escape(to)
+    body = "<html><body>You are being redirected to <a href=\"#{url}\">#{url}</a>.</body></html>"
+
+    conn
+    |> put_resp_header("location", url)
+    |> send_resp(301, body)
+  end
 end
