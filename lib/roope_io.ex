@@ -13,7 +13,15 @@ defmodule RoopeIO do
   end
 
   get "/:page" do
-    send_resp(conn, 200, "Page #{page}")  # TODO: render the actual page
+    {status, content} = case RoopeIO.Page.render_page(page, "pages") do
+      {:ok, content} ->
+        {200, content}
+      {:error, :page_not_found} ->
+        {404, "Page not found"}           # TODO: proper error page
+      _ ->
+        {501, "Internal server error"}
+    end
+    send_resp(conn, status, content)
   end
 
   match _ do
