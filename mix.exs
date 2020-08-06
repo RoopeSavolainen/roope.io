@@ -39,7 +39,8 @@ defmodule RoopeIO.MixProject do
   defp deps do
     [
       {:cowboy, "~> 2.8.0"},
-      {:plug_cowboy, "~> 2.3.0"}
+      {:plug_cowboy, "~> 2.3.0"},
+      {:earmark, "~> 1.4"}
     ]
   end
 end
