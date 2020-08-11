@@ -13,7 +13,7 @@ defmodule RoopeIO do
   end
 
   get "/:page" do
-    {status, content} = case RoopeIO.Page.render_page(page, "pages") do
+    {status, content} = case RoopeIO.Page.render_file(page, "pages") do
       {:ok, content} ->
         {200, content}
       {:error, :page_not_found} ->
