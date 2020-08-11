@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<title><%= title %></title>
+		<link rel=stylesheet type=text/css href="/static/styles.css">
+		<meta name="viewport" content="width=device-width, initial-scale=1">
+		<meta charset="UTF-8">
+		<%# TODO: scripts %>
+	</head>
+
+	<body>
+		<header>
+			<nav>
+				<ul>
+					<li><a href="/">Home</a></li>
+					<li><a href="/about">About</a></li>
+					<li><a href="/blog">Blog</a></li>
+				</ul>
+			</nav>
+		</header>
+
+		<hr>
+
+		<main>
+			<%= content %>
+		</main>
+	</body>
+</html>
