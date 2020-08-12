@@ -9,7 +9,9 @@ defmodule RoopeIO.Page do
     path = Path.join(["assets", directory, page <> ".md"])
     case File.read(path) do
       {:ok, content} ->
-        {:ok, render_content(content)}
+        rendered = render_content(content)
+                   |> main_template("roope.io")  # TODO: Derive title from displayed page
+        {:ok, rendered}
       _ -> {:error, :page_not_found}
     end
   end
@@ -22,6 +24,5 @@ defmodule RoopeIO.Page do
   def render_content(raw) do
     EEx.eval_string(raw)
     |> Earmark.as_html!
-    |> main_template("roope.io")  # TODO: Derive title from displayed page
   end
 end
