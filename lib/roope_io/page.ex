@@ -2,31 +2,32 @@ defmodule RoopeIO.Page do
   require EEx
   require Logger
   use Nebulex.Caching.Decorators
-  use Agent
-
-  @doc ~S"""
-  Starts watching for file changes in the assets folder. Invalidates
-  the page cache entries whenever a file is modified.
-  """
-  def start_link(_opts \\ []) do
-    {:ok, pid} = FileSystem.start_link(dirs: ["assets"])
-    FileSystem.subscribe(pid)
-    file_watcher(pid)
+  use GenServer
+  def start_link(args) do
+    GenServer.start_link(__MODULE__, args)
   end
 
-  defp file_watcher(pid) do
-    receive do
-      {:file_event, ^pid, {path, [:modified, :closed]}} ->
-        basedir = Path.absname("assets")
-        pattern = ~r/#{basedir}\/(?<dir>.*)\/(?<page>.*)\.md/
-        case Regex.named_captures(pattern, path) do
-          %{"dir" => dir, "page" => page} ->
-            RoopeIO.PageCache.delete({dir, page})
-          _ -> nil
-        end
-      _ -> nil
+  def init(args) do
+    {:ok, pid} = FileSystem.start_link(dirs: ["assets"])
+    FileSystem.subscribe(pid)
+    {:ok, %{}}
+  end
+
+  def handle_info({:file_event, _pid, {path, events}}, state) do
+    if :modified in events do
+      basedir = Path.absname("assets")
+      pattern = ~r/#{basedir}\/(?<dir>.*)\/(?<page>.*)\.md/
+      case Regex.named_captures(pattern, path) do
+        %{"dir" => dir, "page" => page} ->
+          RoopeIO.PageCache.delete({dir, page})
+        _ -> nil
+      end
     end
-    file_watcher(pid)
+    {:noreply, state}
+  end
+
+  def handle_info({:file_event, _pid, :stop}, state) do
+    raise RuntimeError
   end
 
   @doc ~S"""
