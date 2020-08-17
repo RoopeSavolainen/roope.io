@@ -40,7 +40,9 @@ defmodule RoopeIO.MixProject do
     [
       {:cowboy, "~> 2.8.0"},
       {:plug_cowboy, "~> 2.3.0"},
-      {:earmark, "~> 1.4"}
+      {:earmark, "~> 1.4"},
+      {:file_system, "~> 0.2"},
+      {:nebulex, "~> 1.2"}
     ]
   end
 end

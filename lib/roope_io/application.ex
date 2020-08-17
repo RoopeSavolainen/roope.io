@@ -10,7 +10,9 @@ defmodule RoopeIO.Application do
     bind = Application.get_env(:roopeio, :bind)
 
     children = [
-      {Plug.Cowboy, scheme: :http, plug: RoopeIO, ip: bind, port: port}
+      {Plug.Cowboy, scheme: :http, plug: RoopeIO, ip: bind, port: port},
+      RoopeIO.PageCache,
+      RoopeIO.Page
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
