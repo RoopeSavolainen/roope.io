@@ -24,8 +24,20 @@ defmodule RoopeIO do
     send_resp(conn, status, content)
   end
 
+  get "/blog/:entry" do
+    {status, content} = case RoopeIO.Page.render_file(entry, "blog") do
+      {:ok, content} ->
+        {200, content}
+      {:error, :page_not_found} ->
+        {404, error(404, "Page not found")}
+      _ ->
+        {501, error(501, "Internal server error")}
+    end
+    send_resp(conn, status, content)
+  end
+
   match _ do
-    send_resp(conn, 404, "Page not found.")  # TODO: proper error page
+    send_resp(conn, 404, error(404, "Page not found."))
   end
 
   defp error(code, description) do
