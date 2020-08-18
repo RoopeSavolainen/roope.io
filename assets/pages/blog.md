@@ -1,4 +1,4 @@
-## Blog
+# Blog
 
 Here's an archive of all my blog posts to date.
 

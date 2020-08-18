@@ -41,6 +41,7 @@ defmodule RoopeIO.Page do
   Reads the given file `file` from the assets directory, optionally found in 
   subdirectory `directory` and renders it with markdown and templating applied.
   """
+  @decorate cache(cache: RoopeIO.PageCache, key: {directory, page})
   def render_file(page, directory \\ "") do
     case get_page_contents(page, directory) do
       {:ok, content} -> {:ok, render_content(content)}
@@ -54,12 +55,24 @@ defmodule RoopeIO.Page do
   Renders the given `content` with markdown and templating applied.
   """
   def render_content(raw) do
-    EEx.eval_string(raw)
+    title = case get_title(raw) do
+      {:ok, val} -> val
+      {:error, :not_found} -> "roope.io"
+    end
+
+    raw
     |> Earmark.as_html!
-    |> main_template("roope.io")  # TODO: Derive title from displayed page
+    |> main_template(title)
   end
 
-  @decorate cache(cache: RoopeIO.PageCache, key: {directory, page})
+  defp get_title(markdown) do
+    pattern = ~r/^# (?<title>.*)$/m
+    case Regex.named_captures(pattern, markdown) do
+      %{"title" => title} -> {:ok, title}
+      _ -> {:error, :not_found}
+    end
+  end
+
   defp get_page_contents(page, directory) do
     path = Path.join(["assets", directory, page <> ".md"])
     Logger.debug("Loading page contents from #{path}")
