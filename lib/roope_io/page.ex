@@ -7,12 +7,16 @@ defmodule RoopeIO.Page do
     GenServer.start_link(__MODULE__, args)
   end
 
-  def init(args) do
+  def init(_args) do
     {:ok, pid} = FileSystem.start_link(dirs: ["assets"])
     FileSystem.subscribe(pid)
     {:ok, %{}}
   end
 
+  @doc ~S"""
+  Handle file events and invalidate cache entries for modified
+  pages.
+  """
   def handle_info({:file_event, _pid, {path, events}}, state) do
     if :modified in events do
       basedir = Path.absname("assets")
@@ -26,7 +30,10 @@ defmodule RoopeIO.Page do
     {:noreply, state}
   end
 
-  def handle_info({:file_event, _pid, :stop}, state) do
+  @doc ~S"""
+  If the file watcher crashes, panic.
+  """
+  def handle_info({:file_event, _pid, :stop}, _state) do
     raise RuntimeError
   end
 
@@ -36,10 +43,7 @@ defmodule RoopeIO.Page do
   """
   def render_file(page, directory \\ "") do
     case get_page_contents(page, directory) do
-      {:ok, content} ->
-        rendered = render_content(content)
-                   |> main_template("roope.io")  # TODO: Derive title from displayed page
-        {:ok, rendered}
+      {:ok, content} -> {:ok, render_content(content)}
       _ -> {:error, :page_not_found}
     end
   end
@@ -52,6 +56,7 @@ defmodule RoopeIO.Page do
   def render_content(raw) do
     EEx.eval_string(raw)
     |> Earmark.as_html!
+    |> main_template("roope.io")  # TODO: Derive title from displayed page
   end
 
   @decorate cache(cache: RoopeIO.PageCache, key: {directory, page})

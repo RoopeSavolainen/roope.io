@@ -23,7 +23,7 @@ defmodule PageTest do
     """
 
     rendered = RoopeIO.Page.render_content(raw)
-    assert equal_html(rendered, expected)
+    assert html_contains(rendered, expected)
   end
 
   test "renders code blocks" do
@@ -42,11 +42,11 @@ defmodule PageTest do
     """
 
     rendered = RoopeIO.Page.render_content(raw)
-    assert equal_html(rendered, expected)
+    assert html_contains(rendered, expected)
   end
 
-  defp equal_html(actual, expected) do
+  defp html_contains(actual, expected) do
     # Asserts that two strings are equal, not taking into account newlines
-    String.replace(actual, "\n", "") == String.replace(expected, "\n", "")
+    assert String.replace(actual, "\n", "") =~ String.replace(expected, "\n", "")
   end
 end

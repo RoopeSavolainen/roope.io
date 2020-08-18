@@ -17,15 +17,24 @@ defmodule RoopeIO do
       {:ok, content} ->
         {200, content}
       {:error, :page_not_found} ->
-        {404, "Page not found"}           # TODO: proper error page
+        {404, error(404, "Page not found")}
       _ ->
-        {501, "Internal server error"}
+        {501, error(501, "Internal server error")}
     end
     send_resp(conn, status, content)
   end
 
   match _ do
     send_resp(conn, 404, "Page not found.")  # TODO: proper error page
+  end
+
+  defp error(code, description) do
+    content = """
+    # Error #{code}
+    
+    #{description}
+    """
+    RoopeIO.Page.render_content(content)
   end
 
   defp redirect(conn, to) do
