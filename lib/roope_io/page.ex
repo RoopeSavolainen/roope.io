@@ -3,8 +3,9 @@ defmodule RoopeIO.Page do
   require Logger
   use Nebulex.Caching.Decorators
   use GenServer
+
   def start_link(args) do
-    GenServer.start_link(__MODULE__, args)
+    GenServer.start_link(__MODULE__, args, name: __MODULE__)
   end
 
   def init(_args) do
@@ -37,16 +38,35 @@ defmodule RoopeIO.Page do
     raise RuntimeError
   end
 
+  defp render(content) do
+    title = case get_title(content) do
+      {:ok, val} -> val
+      {:error, :not_found} -> "roope.io"
+    end
+
+    content
+    |> Earmark.as_html!
+    |> main_template(title)
+  end
+
+  def handle_call({:page, page, directory}, _from, state) do
+    case get_page_contents(page, directory) do
+      {:ok, content} -> {:reply, {:ok, render(content)}, state}
+      _ -> {:reply, {:error, :page_not_found}, state}
+    end
+  end
+
+  def handle_call({:content, content}, _from, state) do
+    {:reply, render(content), state}
+  end
+
   @doc ~S"""
   Reads the given file `file` from the assets directory, optionally found in 
   subdirectory `directory` and renders it with markdown and templating applied.
   """
   @decorate cache(cache: RoopeIO.PageCache, key: {directory, page})
   def render_file(page, directory \\ "") do
-    case get_page_contents(page, directory) do
-      {:ok, content} -> {:ok, render_content(content)}
-      _ -> {:error, :page_not_found}
-    end
+    GenServer.call(__MODULE__, {:page, page, directory})
   end
 
   EEx.function_from_file(:defp, :main_template, Path.join("assets", "main.html"), [:content, :title])
@@ -55,14 +75,7 @@ defmodule RoopeIO.Page do
   Renders the given `content` with markdown and templating applied.
   """
   def render_content(raw) do
-    title = case get_title(raw) do
-      {:ok, val} -> val
-      {:error, :not_found} -> "roope.io"
-    end
-
-    raw
-    |> Earmark.as_html!
-    |> main_template(title)
+    GenServer.call(__MODULE__, {:content, raw})
   end
 
   defp get_title(markdown) do

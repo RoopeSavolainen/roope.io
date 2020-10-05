@@ -11,8 +11,8 @@ defmodule RoopeIO.Application do
 
     children = [
       {Plug.Cowboy, scheme: :http, plug: RoopeIO, ip: bind, port: port},
-      RoopeIO.PageCache,
-      RoopeIO.Page
+      {RoopeIO.PageCache, name: RoopeIO.PageCache},
+      {RoopeIO.Page, name: RoopeIO.Page}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
