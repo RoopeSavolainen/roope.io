@@ -2,6 +2,8 @@
 
 This is an example blog post for testing purposes.
 
+## Code
+
 Here is some example code which should be syntax highlighted:
 
 ```c
@@ -13,12 +15,16 @@ int main(void) {
 
 Good to see that it works as intended.
 
+## Math
+
 Math equations can also be rendered nicely as you can see below:
 
 $$
 y = a_1 x + a_2 x^2 \\\
 a_1, a_2 \in \mathbb{R}
 $$
+
+## More code
 
 Here's some terminal output:
 
@@ -27,6 +33,8 @@ $ make upload
 avr-gcc -mmcu=attiny85 main.c -Wall -Wextra -pedantic -o main.hex
 avrdude -c arduino -p attiny85 -P /dev/ttyUSB0 -b 19200 -U flash:w:main.hex
 ```
+
+## Table
 
 Here's a beautiful table.
 

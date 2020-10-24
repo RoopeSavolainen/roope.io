@@ -38,17 +38,6 @@ defmodule RoopeIO.Page do
     raise RuntimeError
   end
 
-  defp render(content) do
-    title = case get_title(content) do
-      {:ok, val} -> val
-      {:error, :not_found} -> "roope.io"
-    end
-
-    content
-    |> Earmark.as_html!
-    |> main_template(title)
-  end
-
   def handle_call({:page, page, directory}, _from, state) do
     case get_page_contents(page, directory) do
       {:ok, content} -> {:reply, {:ok, render(content)}, state}
@@ -58,6 +47,18 @@ defmodule RoopeIO.Page do
 
   def handle_call({:content, content}, _from, state) do
     {:reply, render(content), state}
+  end
+
+  defp render(content) do
+    title = case get_title(content) do
+      {:ok, val} -> val
+      {:error, :not_found} -> "roope.io"
+    end
+
+    content
+    |> linkify_headings
+    |> Earmark.as_html!
+    |> main_template(title)
   end
 
   @doc ~S"""
@@ -93,5 +94,24 @@ defmodule RoopeIO.Page do
       {:ok, content} -> {:ok, content}
       _ -> {:error, :page_not_found}
     end
+  end
+
+  defp linkify_headings(content) do
+    pattern = ~r/^## (.*)$/m
+    replacement = fn _, title ->
+      norm = normalize_heading(title)
+      """
+      <a name="#{norm}"></a>
+      ## [#{title}](##{norm})
+      """
+    end
+    Regex.replace(pattern, content, replacement)
+  end
+
+  defp normalize_heading(heading) do
+    heading
+    |> String.downcase
+    |> String.replace(~r/[[:punct:]]/, "")
+    |> (&(Regex.replace(~r/\s+/, &1, "-"))).()
   end
 end
