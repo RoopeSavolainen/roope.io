@@ -17,7 +17,8 @@ defmodule PageTest do
 
     <p>Introduction</p>
 
-    <h2>Subtitle</h2>
+    <a name="subtitle"></a>
+    <h2><a href="#subtitle">Subtitle</a></h2>
 
     <p>Content</p>
     """
